@@ -56,6 +56,7 @@
 #include "main/splash.gen.h"
 #include "main/splash_editor.gen.h"
 #include "main/tests/test_main.h"
+#include "modules/gdlint/gdscript_linter.h"
 #include "modules/register_module_types.h"
 #include "platform/register_platform_apis.h"
 #include "scene/debugger/script_debugger_remote.h"
@@ -280,6 +281,7 @@ void Main::print_help(const char *p_binary) {
 	OS::get_singleton()->print("Standalone tools:\n");
 	OS::get_singleton()->print("  -s, --script <script>            Run a script.\n");
 	OS::get_singleton()->print("  --check-only                     Only parse for errors and quit (use with --script).\n");
+	OS::get_singleton()->print("  --lint-only                      Only run linter.\n");
 #ifdef TOOLS_ENABLED
 	OS::get_singleton()->print("  --export <target>                Export the project using the given export target. Export only main pack if path ends with .pck or .zip.\n");
 	OS::get_singleton()->print("  --export-debug <target>          Like --export, but use debug template.\n");
@@ -1374,6 +1376,7 @@ bool Main::start() {
 	String _export_preset;
 	bool export_debug = false;
 	bool check_only = false;
+	bool lint_only = false;
 
 	main_timer_sync.init(OS::get_singleton()->get_ticks_usec());
 
@@ -1382,6 +1385,8 @@ bool Main::start() {
 		//parameters that do not have an argument to the right
 		if (args[i] == "--check-only") {
 			check_only = true;
+		} else if (args[i] == "--lint-only") {
+			lint_only = true;
 #ifdef TOOLS_ENABLED
 		} else if (args[i] == "--no-docbase") {
 			doc_base = false;
@@ -1515,6 +1520,15 @@ bool Main::start() {
 
 		Ref<Script> script_res = ResourceLoader::load(script);
 		ERR_FAIL_COND_V_MSG(script_res.is_null(), false, "Can't load script: " + script);
+
+		if (lint_only) {
+			print_line("Lang: " + script_res->get_language()->get_name() + "/" + script_res->get_language()->get_type() + "/" + script_res->get_language()->get_extension());
+			print_line(script_res->get_source_code());
+			GDScriptLinter linter;
+			linter.lint(script_res->get_source_code());
+			ERR_FAIL_V_MSG(false, "Linter not implemented.");
+			// return false;
+		}
 
 		if (check_only) {
 			return false;
