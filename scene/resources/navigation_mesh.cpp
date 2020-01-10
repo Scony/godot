@@ -29,8 +29,6 @@
 /*************************************************************************/
 
 #include "navigation_mesh.h"
-#include "mesh_instance.h"
-#include "navigation.h"
 
 void NavigationMesh::create_from_mesh(const Ref<Mesh> &p_mesh) {
 	ERR_FAIL_COND(p_mesh.is_null());
