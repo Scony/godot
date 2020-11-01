@@ -46,12 +46,10 @@
 #include "scene/resources/shape.h"
 #include "scene/resources/sphere_shape.h"
 
-// scony: dunno if this should stay or not
-// #include "modules/modules_enabled.gen.h"
-// #ifdef TOOLS_ENABLED
-// #include "editor/editor_node.h"
-// #include "editor/editor_settings.h"
-// #endif
+#ifdef TOOLS_ENABLED
+#include "editor/editor_node.h"
+#include "editor/editor_settings.h"
+#endif
 
 #ifdef MODULE_CSG_ENABLED
 #include "modules/csg/csg_shape.h"
@@ -483,10 +481,11 @@ NavigationMeshGenerator::~NavigationMeshGenerator() {
 
 void NavigationMeshGenerator::bake(Ref<NavigationMesh> p_nav_mesh, Node *p_node) {
 
-	if (!Engine::get_singleton()->is_editor_hint()) {
-		ERR_PRINTS("Invoking EditorNavigationMeshGenerator::bake(...) in-game is not supported in Godot 3.2 or below. Aborting bake...");
-		return;
-	}
+	// @scony: dunno if it's safe to remove that
+	// if (!Engine::get_singleton()->is_editor_hint()) {
+	// 	ERR_PRINTS("Invoking EditorNavigationMeshGenerator::bake(...) in-game is not supported in Godot 3.2 or below. Aborting bake...");
+	// 	return;
+	// }
 
 	ERR_FAIL_COND(!p_nav_mesh.is_valid());
 
