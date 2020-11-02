@@ -195,6 +195,7 @@ void NavigationMeshInstance::bake_navigation_mesh() {
 void NavigationMeshInstance::_bake_finished(Ref<NavigationMesh> p_nav_mesh) {
 	set_navigation_mesh(p_nav_mesh);
 	bake_thread = NULL;
+	emit_signal("bake_finished");
 }
 
 String NavigationMeshInstance::get_configuration_warning() const {
