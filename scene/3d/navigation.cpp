@@ -107,6 +107,9 @@ void Navigation::_notification(int p_what) {
 
 			NavigationServer::get_singleton()->map_set_active(map, false);
 		} break;
+		case NOTIFICATION_ENTER_TREE: {
+			NavigationServer::get_singleton()->map_set_active(map, true);
+		} break;
 	}
 }
 

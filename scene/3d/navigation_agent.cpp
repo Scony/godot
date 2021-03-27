@@ -123,11 +123,14 @@ void NavigationAgent::_notification(int p_what) {
 		} break;
 		case NOTIFICATION_EXIT_TREE: {
 			agent_parent = NULL;
-			set_navigation(NULL);
 			set_physics_process_internal(false);
 		} break;
+		case NOTIFICATION_ENTER_TREE: {
+			agent_parent = Object::cast_to<Spatial>(get_parent());
+			set_physics_process_internal(true);
+		} break;
 		case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
-			if (agent_parent) {
+			if (agent_parent && agent_parent->is_inside_tree()) {
 
 				NavigationServer::get_singleton()->agent_set_position(agent, agent_parent->get_global_transform().origin);
 				if (!target_reached) {
@@ -307,6 +310,7 @@ String NavigationAgent::get_configuration_warning() const {
 void NavigationAgent::update_navigation() {
 
 	if (agent_parent == NULL) return;
+	if (!agent_parent->is_inside_tree()) return;
 	if (navigation == NULL) return;
 	if (update_frame_id == Engine::get_singleton()->get_physics_frames()) return;
 
