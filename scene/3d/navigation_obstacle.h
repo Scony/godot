@@ -42,6 +42,8 @@ class NavigationObstacle : public Node {
 
 	RID agent;
 
+	real_t radius;
+
 protected:
 	static void _bind_methods();
 	void _notification(int p_what);
@@ -58,14 +60,16 @@ public:
 	void set_navigation_node(Node *p_nav);
 	Node *get_navigation_node() const;
 
+	void set_radius(real_t p_radius);
+	real_t get_radius() const {
+		return radius;
+	}
+
 	RID get_rid() const {
 		return agent;
 	}
 
 	virtual String get_configuration_warning() const;
-
-private:
-	void update_agent_shape();
 };
 
 #endif
