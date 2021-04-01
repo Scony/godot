@@ -82,9 +82,9 @@ bool NavigationPolygon::_edit_is_selected_on_click(const Point2 &p_point, double
 
 void NavigationPolygon::set_vertices(const PoolVector<Vector2> &p_vertices) {
 
-	navmesh_generation->lock();
+	navmesh_generation.lock();
 	navmesh.unref();
-	navmesh_generation->unlock();
+	navmesh_generation.unlock();
 	vertices = p_vertices;
 	rect_cache_dirty = true;
 }
@@ -96,9 +96,9 @@ PoolVector<Vector2> NavigationPolygon::get_vertices() const {
 
 void NavigationPolygon::_set_polygons(const Array &p_array) {
 
-	navmesh_generation->lock();
+	navmesh_generation.lock();
 	navmesh.unref();
-	navmesh_generation->unlock();
+	navmesh_generation.unlock();
 	polygons.resize(p_array.size());
 	for (int i = 0; i < p_array.size(); i++) {
 		polygons.write[i].indices = p_array[i];
@@ -141,9 +141,9 @@ void NavigationPolygon::add_polygon(const Vector<int> &p_polygon) {
 	Polygon polygon;
 	polygon.indices = p_polygon;
 	polygons.push_back(polygon);
-	navmesh_generation->lock();
+	navmesh_generation.lock();
 	navmesh.unref();
-	navmesh_generation->unlock();
+	navmesh_generation.unlock();
 }
 
 void NavigationPolygon::add_outline_at_index(const PoolVector<Vector2> &p_outline, int p_index) {
@@ -164,13 +164,13 @@ Vector<int> NavigationPolygon::get_polygon(int p_idx) {
 void NavigationPolygon::clear_polygons() {
 
 	polygons.clear();
-	navmesh_generation->lock();
+	navmesh_generation.lock();
 	navmesh.unref();
-	navmesh_generation->unlock();
+	navmesh_generation.unlock();
 }
 
 Ref<NavigationMesh> NavigationPolygon::get_mesh() {
-	navmesh_generation->lock();
+	navmesh_generation.lock();
 	if (navmesh.is_null()) {
 		navmesh.instance();
 		PoolVector<Vector3> verts;
@@ -190,7 +190,7 @@ Ref<NavigationMesh> NavigationPolygon::get_mesh() {
 			navmesh->add_polygon(get_polygon(i));
 		}
 	}
-	navmesh_generation->unlock();
+	navmesh_generation.unlock();
 	return navmesh;
 }
 
@@ -230,9 +230,9 @@ void NavigationPolygon::clear_outlines() {
 }
 void NavigationPolygon::make_polygons_from_outlines() {
 
-	navmesh_generation->lock();
+	navmesh_generation.lock();
 	navmesh.unref();
-	navmesh_generation->unlock();
+	navmesh_generation.unlock();
 	List<TriangulatorPoly> in_poly, out_poly;
 
 	Vector2 outside_point(-1e10, -1e10);
@@ -362,9 +362,7 @@ void NavigationPolygon::_bind_methods() {
 }
 
 NavigationPolygon::NavigationPolygon() :
-		rect_cache_dirty(true),
-		navmesh_generation(NULL) {
-	navmesh_generation = Mutex::create();
+		rect_cache_dirty(true) {
 }
 
 void NavigationPolygonInstance::set_enabled(bool p_enabled) {

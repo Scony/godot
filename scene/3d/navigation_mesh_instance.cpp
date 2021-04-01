@@ -183,18 +183,18 @@ void _bake_navigation_mesh(void *p_user_data) {
 }
 
 void NavigationMeshInstance::bake_navigation_mesh() {
-	ERR_FAIL_COND(bake_thread != NULL);
+	ERR_FAIL_COND(bake_thread.is_started());
 
 	BakeThreadsArgs *args = memnew(BakeThreadsArgs);
 	args->nav_mesh_instance = this;
 
-	bake_thread = Thread::create(_bake_navigation_mesh, args);
-	ERR_FAIL_COND(bake_thread == NULL);
+	bake_thread.start(_bake_navigation_mesh, args);
+	ERR_FAIL_COND(!bake_thread.is_started());
 }
 
 void NavigationMeshInstance::_bake_finished(Ref<NavigationMesh> p_nav_mesh) {
 	set_navigation_mesh(p_nav_mesh);
-	bake_thread = NULL;
+	bake_thread.wait_to_finish();
 	emit_signal("bake_finished");
 }
 
@@ -249,7 +249,6 @@ NavigationMeshInstance::NavigationMeshInstance() {
 
 	navigation = NULL;
 	debug_view = NULL;
-	bake_thread = NULL;
 }
 
 NavigationMeshInstance::~NavigationMeshInstance() {

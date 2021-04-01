@@ -47,7 +47,7 @@ class NavigationMeshInstance : public Spatial {
 
 	Navigation *navigation;
 	Node *debug_view;
-	Thread *bake_thread;
+	Thread bake_thread;
 
 protected:
 	void _notification(int p_what);
