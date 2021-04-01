@@ -39,13 +39,16 @@ void NavigationObstacle::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("set_navigation", "navigation"), &NavigationObstacle::set_navigation_node);
 	ClassDB::bind_method(D_METHOD("get_navigation"), &NavigationObstacle::get_navigation_node);
+
+	ClassDB::bind_method(D_METHOD("set_radius", "radius"), &NavigationObstacle::set_radius);
+	ClassDB::bind_method(D_METHOD("get_radius"), &NavigationObstacle::get_radius);
+
+	ADD_PROPERTY(PropertyInfo(Variant::REAL, "radius", PROPERTY_HINT_RANGE, "0.1,100,0.01"), "set_radius", "get_radius");
 }
 
 void NavigationObstacle::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_READY: {
-
-			update_agent_shape();
 
 			// Search the navigation node and set it
 			{
@@ -90,6 +93,12 @@ NavigationObstacle::NavigationObstacle() :
 		navigation(NULL),
 		agent(RID()) {
 	agent = NavigationServer::get_singleton()->agent_create();
+	radius = 1.0;
+	NavigationServer::get_singleton()->agent_set_neighbor_dist(agent, 0.0);
+	NavigationServer::get_singleton()->agent_set_max_neighbors(agent, 0);
+	NavigationServer::get_singleton()->agent_set_time_horizon(agent, 0.0);
+	NavigationServer::get_singleton()->agent_set_radius(agent, radius);
+	NavigationServer::get_singleton()->agent_set_max_speed(agent, 0.0);
 }
 
 NavigationObstacle::~NavigationObstacle() {
@@ -124,40 +133,7 @@ String NavigationObstacle::get_configuration_warning() const {
 	return String();
 }
 
-void NavigationObstacle::update_agent_shape() {
-	Node *node = get_parent();
-
-	// Estimate the radius of this physics body
-	real_t radius = 0.0;
-	for (int i(0); i < node->get_child_count(); i++) {
-		// For each collision shape
-		CollisionShape *cs = Object::cast_to<CollisionShape>(node->get_child(i));
-		if (cs) {
-			// Take the distance between the Body center to the shape center
-			real_t r = cs->get_transform().origin.length();
-			if (cs->get_shape().is_valid()) {
-				// and add the enclosing shape radius
-				r += cs->get_shape()->get_enclosing_radius();
-			}
-			Vector3 s = cs->get_global_transform().basis.get_scale();
-			r *= MAX(s.x, MAX(s.y, s.z));
-			// Takes the biggest radius
-			radius = MAX(radius, r);
-		}
-	}
-	Spatial *spa = Object::cast_to<Spatial>(node);
-	if (spa) {
-		Vector3 s = spa->get_global_transform().basis.get_scale();
-		radius *= MAX(s.x, MAX(s.y, s.z));
-	}
-
-	if (radius == 0.0)
-		radius = 1.0; // Never a 0 radius
-
-	// Initialize the Agent as an object
-	NavigationServer::get_singleton()->agent_set_neighbor_dist(agent, 0.0);
-	NavigationServer::get_singleton()->agent_set_max_neighbors(agent, 0);
-	NavigationServer::get_singleton()->agent_set_time_horizon(agent, 0.0);
+void NavigationObstacle::set_radius(real_t p_radius) {
+	radius = p_radius;
 	NavigationServer::get_singleton()->agent_set_radius(agent, radius);
-	NavigationServer::get_singleton()->agent_set_max_speed(agent, 0.0);
 }
