@@ -144,6 +144,8 @@ protected:
 	virtual void _create_mesh_array(Array &p_arr) const;
 
 public:
+	static void create_mesh_array(Array &p_arr, Vector3 size, int subdivide_w, int subdivide_h, int subdivide_d);
+
 	void set_size(const Vector3 &p_size);
 	Vector3 get_size() const;
 
@@ -179,6 +181,8 @@ protected:
 	virtual void _create_mesh_array(Array &p_arr) const;
 
 public:
+	static void create_mesh_array(Array &p_arr, float top_radius, float bottom_radius, float height, int radial_segments, int rings);
+
 	void set_top_radius(const float p_radius);
 	float get_top_radius() const;
 

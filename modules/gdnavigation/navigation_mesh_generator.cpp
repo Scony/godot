@@ -122,6 +122,28 @@ void NavigationMeshGenerator::_add_mesh(const Ref<Mesh> &p_mesh, const Transform
 	}
 }
 
+void NavigationMeshGenerator::_add_mesh_array(const Array &p_array, const Transform &p_xform, Vector<float> &p_vertices, Vector<int> &p_indices) {
+	PoolVector<Vector3> mesh_vertices = p_array[Mesh::ARRAY_VERTEX];
+	PoolVector<Vector3>::Read vr = mesh_vertices.read();
+
+	PoolVector<int> mesh_indices = p_array[Mesh::ARRAY_INDEX];
+	PoolVector<int>::Read ir = mesh_indices.read();
+
+	const int face_count = mesh_indices.size() / 3;
+	const int current_vertex_count = p_vertices.size() / 3;
+
+	for (int j = 0; j < mesh_vertices.size(); j++) {
+		_add_vertex(p_xform.xform(vr[j]), p_vertices);
+	}
+
+	for (int j = 0; j < face_count; j++) {
+		// CCW
+		p_indices.push_back(current_vertex_count + (ir[j * 3 + 0]));
+		p_indices.push_back(current_vertex_count + (ir[j * 3 + 2]));
+		p_indices.push_back(current_vertex_count + (ir[j * 3 + 1]));
+	}
+}
+
 void NavigationMeshGenerator::_add_faces(const PoolVector3Array &p_faces, const Transform &p_xform, Vector<float> &p_verticies, Vector<int> &p_indices) {
 	int face_count = p_faces.size() / 3;
 	int current_vertex_count = p_verticies.size() / 3;
@@ -179,10 +201,11 @@ void NavigationMeshGenerator::_parse_geometry(Transform p_accumulated_transform,
 
 					BoxShape *box = Object::cast_to<BoxShape>(*s);
 					if (box) {
-						Ref<CubeMesh> cube_mesh;
-						cube_mesh.instance();
-						cube_mesh->set_size(box->get_extents() * 2.0);
-						mesh = cube_mesh;
+						Array arr;
+						arr.resize(VS::ARRAY_MAX);
+						CubeMesh::create_mesh_array(arr, box->get_extents() * 2.0, 0, 0, 0);
+						_add_mesh_array(arr, transform, p_verticies, p_indices);
+						continue;
 					}
 
 					CapsuleShape *capsule = Object::cast_to<CapsuleShape>(*s);
@@ -196,12 +219,11 @@ void NavigationMeshGenerator::_parse_geometry(Transform p_accumulated_transform,
 
 					CylinderShape *cylinder = Object::cast_to<CylinderShape>(*s);
 					if (cylinder) {
-						Ref<CylinderMesh> cylinder_mesh;
-						cylinder_mesh.instance();
-						cylinder_mesh->set_height(cylinder->get_height());
-						cylinder_mesh->set_bottom_radius(cylinder->get_radius());
-						cylinder_mesh->set_top_radius(cylinder->get_radius());
-						mesh = cylinder_mesh;
+						Array arr;
+						arr.resize(VS::ARRAY_MAX);
+						CylinderMesh::create_mesh_array(arr, cylinder->get_radius(), cylinder->get_radius(), cylinder->get_height(), 64, 4);
+						_add_mesh_array(arr, transform, p_verticies, p_indices);
+						continue;
 					}
 
 					SphereShape *sphere = Object::cast_to<SphereShape>(*s);
