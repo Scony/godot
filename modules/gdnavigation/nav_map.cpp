@@ -67,9 +67,9 @@ void NavMap::set_edge_connection_margin(float p_edge_connection_margin) {
 }
 
 gd::PointKey NavMap::get_point_key(const Vector3 &p_pos) const {
-	const int x = int(Math::floor(p_pos.x / cell_size));
-	const int y = int(Math::floor(p_pos.y / cell_size));
-	const int z = int(Math::floor(p_pos.z / cell_size));
+	const int x = static_cast<int>(Math::round(p_pos.x / cell_size));
+	const int y = static_cast<int>(Math::round(p_pos.y / cell_size));
+	const int z = static_cast<int>(Math::round(p_pos.z / cell_size));
 
 	gd::PointKey p;
 	p.key = 0;
@@ -315,7 +315,7 @@ Vector<Vector3> NavMap::get_path(Vector3 p_origin, Vector3 p_destination, bool p
 					left = p->poly->points[prev].pos;
 					right = p->poly->points[prev_n].pos;
 
-					//if (CLOCK_TANGENT(apex_point,left,(left+right)*0.5).dot(up) < 0){
+					// if (CLOCK_TANGENT(apex_point,left,(left+right)*0.5).dot(up) < 0){
 					if (p->poly->clockwise) {
 						SWAP(left, right);
 					}
@@ -324,7 +324,7 @@ Vector<Vector3> NavMap::get_path(Vector3 p_origin, Vector3 p_destination, bool p
 				bool skip = false;
 
 				if (CLOCK_TANGENT(apex_point, portal_left, left).dot(up) >= 0) {
-					//process
+					// process
 					if (portal_left == apex_point || CLOCK_TANGENT(apex_point, left, portal_right).dot(up) > 0) {
 						left_poly = p;
 						portal_left = left;
@@ -344,7 +344,7 @@ Vector<Vector3> NavMap::get_path(Vector3 p_origin, Vector3 p_destination, bool p
 				}
 
 				if (!skip && CLOCK_TANGENT(apex_point, portal_right, right).dot(up) <= 0) {
-					//process
+					// process
 					if (portal_right == apex_point || CLOCK_TANGENT(apex_point, right, portal_left).dot(up) < 0) {
 						right_poly = p;
 						portal_right = right;
