@@ -178,7 +178,6 @@ void NavigationAgent::set_navigation(Navigation *p_nav) {
 
 void NavigationAgent::set_navigation_node(Node *p_nav) {
 	Navigation *nav = Object::cast_to<Navigation>(p_nav);
-	ERR_FAIL_COND(nav == NULL);
 	set_navigation(nav);
 }
 
